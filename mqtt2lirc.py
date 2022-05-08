@@ -14,8 +14,21 @@ args = parser.parse_args()
 client = mqtt.Client(client_id="lirc")
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code " + str(rc))
-    client.subscribe(args.topic)
+    if rc == 0:
+        print("Connected (Code 0)")
+        client.subscribe(args.topic)
+        return
+    elif rc == 1:
+        raise Exception("Connection refused (Code 1) – incorrect protocol version")
+    elif rc == 2:
+        raise Exception("Connection refused (Code 2) – invalid client identifier")
+    elif rc == 3:
+        raise Exception("Connection refused (Code 3) – server unavailable")
+    elif rc == 4:
+        raise Exception("Connection refused (Code 4) – bad username or password")
+    elif rc == 5:
+        raise Exception("Connection refused (Code 5) – not authorised")
+    raise Exception(f"Connection refused (Code {rc}) – unknown error code")
 
 def on_message(client, userdata, message):
     try:
