@@ -8,13 +8,14 @@ parser.add_argument("hostname", help="broker hostname")
 parser.add_argument('--port', dest="port", type=int, default=1883, help='broker port')
 parser.add_argument('--username', '-u', dest='username', help='broker username')
 parser.add_argument('--password', '-p', dest='password', help='broker password')
+parser.add_argument('--topic', '-t', dest='topic', default='lirc/tx', help='broker topic to subscribe to')
 args = parser.parse_args()
 
 client = mqtt.Client(client_id="lirc")
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " + str(rc))
-    client.subscribe("lirc/tx")
+    client.subscribe(args.topic)
 
 def on_message(client, userdata, message):
     try:
@@ -33,4 +34,8 @@ if args.username or args.password:
     client.username_pw_set(username=args.username, password=args.password)
 
 client.connect(args.hostname, port=args.port, keepalive=60, bind_address="")
-client.loop_forever()
+
+try:
+    client.loop_forever()
+except KeyboardInterrupt:
+    pass
