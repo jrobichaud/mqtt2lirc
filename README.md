@@ -24,4 +24,7 @@ optional arguments:
 
 # Example
 
+```bash
 python -m "mqtt2lirc" "homeassistant.local" -u "homeassistant" -p "changeme";sudo systemctl stop lircd.socket;sudo systemctl start lircd.socket
+```
+
