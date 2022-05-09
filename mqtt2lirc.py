@@ -7,10 +7,10 @@ import sys
 
 parser = argparse.ArgumentParser(description='mqtt2lirc')
 parser.add_argument("hostname", help="broker hostname")
-parser.add_argument('--port', dest="port", type=int, default=1883, help='broker port')
+parser.add_argument('--port', dest="port", type=int, default=1883, help='broker port (default: %(default)s)')
 parser.add_argument('--username', '-u', dest='username', help='broker username')
 parser.add_argument('--password', '-p', dest='password', help='broker password')
-parser.add_argument('--topic', '-t', dest='topic', default='lirc/tx', help='broker topic to subscribe to')
+parser.add_argument('--topic', '-t', dest='topic', default='lirc/tx', help='broker topic to subscribe to (default: %(default)s)')
 args = parser.parse_args()
 
 mqtt_client = mqtt.Client(client_id="lirc")

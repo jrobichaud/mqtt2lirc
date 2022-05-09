@@ -13,13 +13,13 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --port PORT           broker port
+  --port PORT           broker port (default: 1883)
   --username USERNAME, -u USERNAME
                         broker username
   --password PASSWORD, -p PASSWORD
                         broker password
   --topic TOPIC, -t TOPIC
-                        broker topic to subscribe to
+                        broker topic to subscribe to (default: lirc/tx)
 ```
 
 # Example
@@ -28,3 +28,10 @@ optional arguments:
 python -m "mqtt2lirc" "homeassistant.local" -u "homeassistant" -p "changeme";sudo systemctl stop lircd.socket;sudo systemctl start lircd.socket
 ```
 
+# Send data
+
+Topic: lirc/tx
+Example payload
+```json
+{"remote": "my_remote", "key": "KEY_1"}
+```
