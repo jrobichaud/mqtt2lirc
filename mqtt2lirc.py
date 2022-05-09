@@ -2,6 +2,8 @@ import paho.mqtt.client as mqtt
 import json
 import argparse
 import traceback
+import lirc
+import sys
 
 parser = argparse.ArgumentParser(description='mqtt2lirc')
 parser.add_argument("hostname", help="broker hostname")
@@ -11,7 +13,8 @@ parser.add_argument('--password', '-p', dest='password', help='broker password')
 parser.add_argument('--topic', '-t', dest='topic', default='lirc/tx', help='broker topic to subscribe to')
 args = parser.parse_args()
 
-client = mqtt.Client(client_id="lirc")
+mqtt_client = mqtt.Client(client_id="lirc")
+lirc_client = lirc.Client()
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -35,20 +38,27 @@ def on_message(client, userdata, message):
         print("message received " ,str(message.payload.decode("utf-8")))
         payload = json.loads(message.payload)
         remote = payload["remote"]
-        keys = payload["keys"]
-        print(remote, keys)
+        key = payload["key"]
+        repeat_count = payload.get("repeat_count", 1)
+        print("sending key", remote, key, f"repeat_count={repeat_count}")
+        lirc_client.send_once(remote, key, repeat_count=repeat_count)
+    except lirc.exceptions.LircdCommandFailureError as error:
+        print('Unable to send key', file=sys.stderr)
+        print(error)
     except Exception:
         traceback.print_exc()
 
-client.on_message = on_message
-client.on_connect = on_connect
+mqtt_client.on_message = on_message
+mqtt_client.on_connect = on_connect
 
 if args.username or args.password:
-    client.username_pw_set(username=args.username, password=args.password)
+    mqtt_client.username_pw_set(username=args.username, password=args.password)
 
-client.connect(args.hostname, port=args.port, keepalive=60, bind_address="")
+mqtt_client.connect(args.hostname, port=args.port, keepalive=60, bind_address="")
 
 try:
-    client.loop_forever()
+    mqtt_client.loop_forever()
 except KeyboardInterrupt:
     pass
+finally:
+    lirc_client.close()
